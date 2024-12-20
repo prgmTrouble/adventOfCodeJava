@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+\begin{document}
+\begin{algorithm}
+    \caption{}
+    \begin{algorithmic}
+        \Require
+            {\\An array of 4-bit binary coded decimal pairs in the form: $\texttt{in}[t]=a_t|(b_t\ll 4)$}
+        \Ensure
+            {\\The checksum from moving individual blocks\\}
+        \hrulefill
+        \State$l\gets 0$
+        \State$r\gets\texttt{in.length}-1$
+        \State$x\gets 0$
+        \State$\texttt{result}\gets 0$
+        \State$a_r\gets\texttt{in}[r]\&\texttt{0xF}$
+        \While{$l<r$}
+            \State$a_l\gets\texttt{in}[l]\&\texttt{0xF}$
+            \State$b_l\gets(\texttt{in}[l]\gg 4)\&\texttt{0xF}$
+            \State$\texttt{result}\gets\texttt{result}+l\displaystyle\sum_{i=0}^{a_l}{(x+i)}$
+            \State$x\gets x+a_l$
+            \While{$a_r\le b_l$}
+                \State$\texttt{result}\gets\texttt{result}+r\displaystyle\sum_{i=0}^{a_r}{(x+i)}$
+                \State$x\gets x+a_r$
+                \State$b_l\gets b_l-a_r$
+                \State$r\gets r-1$
+                \If{$r\le l$}
+                    \State\textbf{return}\texttt{ result}
+                \EndIf
+                \State$a_r\gets\texttt{in}[r]\&\texttt{0xF}$
+            \EndWhile
+            \State$\texttt{result}\gets\texttt{result}+r\displaystyle\sum_{i=0}^{b_l}{(x+i)}$
+            \State$x\gets x+b_l$
+            \State$a_r\gets a_r-b_l$
+            \State$l\gets l+1$
+        \EndWhile
+        \State$\textbf{return}\texttt{ result}+r\displaystyle\sum_{i=0}^{a_r}{(x+i)}$
+    \end{algorithmic}
+\end{algorithm}
+\begin{algorithm}
+    \caption{}
+    \begin{algorithmic}
+        \Require
+            {\\An array of 4-bit binary coded decimal pairs in the form: $\texttt{in}[t]=a_t|(b_t\ll 4)$}
+        \Ensure
+            {\\The checksum from moving whole files\\}
+        \hrulefill
+        \State$l\gets 0$
+        \State$x\gets 0$
+        \State$\texttt{result}\gets 0$
+        \State$\texttt{moved}\gets \{\}$
+        \Loop
+            \State\underline{start:}
+            \State$a_l\gets \texttt{in}[l]\&\texttt{0xF}$
+            \State$b_l\gets(\texttt{in}[l]\gg 4)\&\texttt{0xF}$
+            \If{$l\notin\texttt{moved}$}
+                \State$\texttt{result}\gets\texttt{result}+l\displaystyle\sum_{i=0}^{a_l}{(x+i)}$
+            \EndIf
+            \State$l\gets l+1$
+            \If{$l=\texttt{in.length}$}
+                \State\textbf{break}
+            \EndIf
+            \State$x\gets x+a_l$
+            \If{$b_l\not=0$}
+                \For{$r\in(\texttt{in.length},l]-\texttt{moved}$}
+                    \State$a_r\gets\texttt{in}[r]\&\texttt{0xF}$
+                    \If{$a_r\le b_l$}
+                        \State$\texttt{moved}\gets\texttt{moved}\cup r$
+                        \State$\texttt{result}\gets\texttt{result}+r\displaystyle\sum_{i=0}^{a_r}{(x+i)}$
+                        \State$x\gets x+a_r$
+                        \State$b_l\gets b_l-a_r$
+                        \If{$b_l=0$}
+                            \State\textbf{goto }\underline{start}
+                        \EndIf
+                    \EndIf
+                \EndFor
+                \State$x\gets x+b_l$
+            \EndIf
+        \EndLoop
+        \State\textbf{return}\texttt{ result}
+    \end{algorithmic}
+\end{algorithm}
+\end{document}

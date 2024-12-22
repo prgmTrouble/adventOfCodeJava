@@ -104,6 +104,6 @@ static void main()
         for(byte c = 0;c < map[0].length;++c)
             map[r][c] = (byte)(input[r * lineEnd + c] - '0');
     
-    System.out.printf("Part 1:%d\n",part1(map));
-    System.out.printf("Part 2:%d\n",part2(map));
+    System.out.printf("Part 1: %d\n",part1(map));
+    System.out.printf("Part 2: %d\n",part2(map));
 }

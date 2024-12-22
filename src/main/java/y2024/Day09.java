@@ -129,7 +129,7 @@ static void main()
     input[end >>> 1] = (byte)(input[end - 1] - '0');
     System.arraycopy(input,0,input = new byte[(end >>> 1) + 1],0,input.length);
     
-    System.out.printf("Part 1:%d\n",part1(input));
-    System.out.printf("Part 2:%d\n",part2(input));
-    System.out.printf("Part 2 (optimized):%d\n",part2optimized(input));
+    System.out.printf("Part 1: %d\n",part1(input));
+    System.out.printf("Part 2: %d\n",part2(input));
+    System.out.printf("Part 2 (optimized): %d\n",part2optimized(input));
 }

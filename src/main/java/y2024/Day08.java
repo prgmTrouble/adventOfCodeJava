@@ -126,6 +126,6 @@ static void main()
                 coordinates[++coordinates[0]] = (short)((r << 8) | c);
             }
     
-    System.out.printf("Part 1:%d\n",part1(map,frequencies));
-    System.out.printf("Part 2:%d\n",part2(map,frequencies));
+    System.out.printf("Part 1: %d\n",part1(map,frequencies));
+    System.out.printf("Part 2: %d\n",part2(map,frequencies));
 }

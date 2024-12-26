@@ -12,13 +12,13 @@ public final class IntMap<T>
     public Object[] values;
     public int size = 0;
     public boolean grow = false;
-    
+
     public IntMap(final int capacity)
     {
         keys = new int[capacity];
         values = new Object[capacity];
     }
-    
+
     public T get(final int key)
     {
         final int find = find(keys,key,size);
@@ -50,18 +50,14 @@ public final class IntMap<T>
         values[find] = value;
         return false;
     }
-    public T remove(final int key)
+    public void removeImpl(final int index)
     {
-        final int find = find(keys,key,size);
-        if(find < 0) return null;
-        
-        final T out = (T)values[find];
         final int[] oldK;
         final Object[] oldV;
         if(grow && size < keys.length / 4)
         {
-            arraycopy(oldK = keys,0,keys = new int[oldK.length / 2],0,find);
-            arraycopy(oldV = values,0,values = new Object[oldK.length / 2],0,find);
+            arraycopy(oldK = keys,0,keys = new int[oldK.length / 2],0,index);
+            arraycopy(oldV = values,0,values = new Object[oldK.length / 2],0,index);
         }
         else
         {
@@ -69,16 +65,32 @@ public final class IntMap<T>
             oldV = values;
         }
         --size;
-        arraycopy(oldK,find + 1,keys,find,size - find);
-        arraycopy(oldV,find + 1,values,find,size - find);
+        arraycopy(oldK,index + 1,keys,index,size - index);
+        arraycopy(oldV,index + 1,values,index,size - index);
+    }
+    public T remove(final int key)
+    {
+        final int find = find(keys,key,size);
+        if(find < 0) return null;
+
+        final T out = (T)values[find];
+        removeImpl(find);
         return out;
     }
-    public T putIfAbsent(final int key,final Supplier<T> value)
+    public T insert(final int key,final Supplier<T> value)
     {
         final int find = find(keys,key,size);
         if(find >= 0) return (T)values[find];
         final T out = value.get();
         putImpl(key,out,-(find + 1));
+        return out;
+    }
+    public T replace(final int key,final Supplier<T> value)
+    {
+        final int find = find(keys,key,size);
+        if(find < 0) return null;
+        final T out = (T)values[find];
+        values[find] = value.get();
         return out;
     }
 }

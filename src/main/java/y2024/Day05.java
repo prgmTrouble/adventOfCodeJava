@@ -169,12 +169,12 @@ static void main()
     {
         BitSet.set
         (
-            fmap.putIfAbsent(rules[rule],() -> BitSet.create(100)),
+            fmap.insert(rules[rule],() -> BitSet.create(100)),
             rules[rule + 1]
         );
         BitSet.set
         (
-            bmap.putIfAbsent(rules[rule + 1],() -> BitSet.create(100)),
+            bmap.insert(rules[rule + 1],() -> BitSet.create(100)),
             rules[rule]
         );
     }

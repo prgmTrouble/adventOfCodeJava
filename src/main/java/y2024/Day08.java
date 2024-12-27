@@ -122,7 +122,7 @@ static void main()
         for(c = 0;c < map[0].length;++c)
             if(map[r][c] != 0)
             {
-                final short[] coordinates = frequencies.putIfAbsent(map[r][c],() -> new short[5]);
+                final short[] coordinates = frequencies.insert(map[r][c],() -> new short[5]);
                 coordinates[++coordinates[0]] = (short)((r << 8) | c);
             }
     

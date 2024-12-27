@@ -20,7 +20,7 @@ public final class HttpUtils
             (
                 HttpRequest
                     .newBuilder(URI.create(url))
-                    .header("cookie",Files.readString(Path.of("src/main/resources/cookie")))
+                    .header("cookie",Files.readString(Path.of("src","main","resources","cookie")))
                     .build(),
                 HttpResponse.BodyHandlers.ofString()
             ).body();

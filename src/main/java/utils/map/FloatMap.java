@@ -6,21 +6,21 @@ import static java.lang.System.arraycopy;
 import static utils.ArrayUtils.find;
 
 @SuppressWarnings("unchecked")
-public final class ShortMap<T>
+public final class FloatMap<T>
 {
-    public short[] keys;
+    public float[] keys;
     public Object[] values;
     public int size = 0;
     public boolean grow = false;
 
-    public ShortMap(final int capacity)
+    public FloatMap(final int capacity)
     {
-        keys = new short[capacity];
+        keys = new float[capacity];
         values = new Object[capacity];
     }
 
     /** @return The value at the specified key, or {@code null} if not present. */
-    public T get(final short key)
+    public T get(final float key)
     {
         final int find = find(keys,key,size);
         return find < 0? null : (T)values[find];
@@ -31,13 +31,13 @@ public final class ShortMap<T>
      * the correct location in the backing arrays and the key does not already exist
      * in the map.
      */
-    public void putImpl(final short key,final T value,final int index)
+    public void putImpl(final float key,final T value,final int index)
     {
-        final short[] oldK = keys;
+        final float[] oldK = keys;
         final Object[] oldV = values;
         if(grow && size == keys.length)
         {
-            arraycopy(keys,0,keys = new short[size * 2],0,index);
+            arraycopy(keys,0,keys = new float[size * 2],0,index);
             arraycopy(values,0,values = new Object[size * 2],0,index);
         }
         arraycopy(oldK,index,keys,index + 1,size - index);
@@ -51,7 +51,7 @@ public final class ShortMap<T>
      * Associates the key with the specified value.
      * @return {@code true} if the map's size changed.
      */
-    public boolean put(final short key,final T value)
+    public boolean put(final float key,final T value)
     {
         final int find = find(keys,key,size);
         if(find < 0)
@@ -69,11 +69,11 @@ public final class ShortMap<T>
      */
     public void removeImpl(final int index)
     {
-        final short[] oldK;
+        final float[] oldK;
         final Object[] oldV;
         if(grow && size < keys.length / 4)
         {
-            arraycopy(oldK = keys,0,keys = new short[oldK.length / 2],0,index);
+            arraycopy(oldK = keys,0,keys = new float[oldK.length / 2],0,index);
             arraycopy(oldV = values,0,values = new Object[oldK.length / 2],0,index);
         }
         else
@@ -91,7 +91,7 @@ public final class ShortMap<T>
      * @return The value associated with {@code key}, or {@code null} if the map
      *         did not contain {@code key}.
      */
-    public T remove(final short key)
+    public T remove(final float key)
     {
         final int find = find(keys,key,size);
         if(find < 0) return null;
@@ -105,7 +105,7 @@ public final class ShortMap<T>
      * Inserts the specified value if the key is not already present in the map.
      * @return The value associated with {@code key} after the insertion.
      */
-    public T insert(final short key,final Supplier<T> value)
+    public T insert(final float key,final Supplier<T> value)
     {
         final int find = find(keys,key,size);
         if(find >= 0) return (T)values[find];
@@ -118,7 +118,7 @@ public final class ShortMap<T>
      * Inserts the specified value if the key is not already present in the map.
      * @return The value associated with {@code key} after the insertion.
      */
-    public T insert(final short key,final T value)
+    public T insert(final float key,final T value)
     {
         final int find = find(keys,key,size);
         if(find >= 0) return (T)values[find];
@@ -131,7 +131,7 @@ public final class ShortMap<T>
      * @return The previous value associated with {@code key}, or {@code null} if the
      *         map did not contain {@code key}.
      */
-    public T replace(final short key,final Supplier<T> value)
+    public T replace(final float key,final Supplier<T> value)
     {
         final int find = find(keys,key,size);
         if(find < 0) return null;
@@ -145,7 +145,7 @@ public final class ShortMap<T>
      * @return The previous value associated with {@code key}, or {@code null} if the
      *         map did not contain {@code key}.
      */
-    public T replace(final short key,final T value)
+    public T replace(final float key,final T value)
     {
         final int find = find(keys,key,size);
         if(find < 0) return null;

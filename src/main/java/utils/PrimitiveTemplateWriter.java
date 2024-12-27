@@ -6,6 +6,52 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A utility class for generating Java code parameterized by primitive numeric types.
+ *
+ * <h4>Variables</h4>
+ * <p>Template variables can contain '{@code i}' for integral types (e.g. {@code byte}, {@code int}, etc.)
+ * and/or '{@code f}' for floating point types. Variables are expected in a comma-separated list terminated
+ * by a semi-colon (e.g. {@code i,f,if;})</p>
+ *
+ * <h4>Segments</h4>
+ * <p>Segments begin with the first non-whitespace or escaped character following the variable list and end with
+ * the character '{@code #}' or EOF, whichever appears first. Variables are referenced in the following form:
+ * {@code $[0-9]+(\+|\-)}. The number indicates which variable to use and the '{@code +}' or '{@code -}' determines
+ * whether the first character is uppercase or lowercase, respectfully. For example, the template
+ * {@code i,f; $1+ or $0-} will produce 8 outputs, the first of which being '{@code Float or byte}'. Any character
+ * (especially whitespace and '{@code $}') be escaped using the '{@code \}' character.</p>
+ *
+ * <h4>Static Templates</h4>
+ * <p>Static templates are a sequence of alternating variable lists and sequences. The output file will share the
+ * name of the template file. For example:
+ * <pre>
+ *     f;
+ *     foo=$0-
+ *     #i;
+ *     bar=$0-
+ * </pre>
+ * will generate
+ * <pre>
+ *     foo=float
+ *     foo=double
+ *     bar=byte
+ *     bar=short
+ *     bar=int
+ *     bar=long
+ * </pre>
+ * as the output.</p>
+ *
+ * <h4>Class Templates</h4>
+ * <p>Class templates are a single variable list and a file name template followed by a file content template.
+ * For example:
+ * <pre>
+ *     f; $0+File.java#
+ *     foo=$0-
+ * </pre>
+ * will generate two files: {@code FloatFile.java} and {@code DoubleFile.java} which contain the text {@code foo=float}
+ * and {@code foo=double}, respectively.</p>
+ */
 public final class PrimitiveTemplateWriter
 {
     private PrimitiveTemplateWriter() {}
@@ -68,7 +114,7 @@ public final class PrimitiveTemplateWriter
         final List<Integer> variables = new ArrayList<>();
         boolean escape = false;
         final StringBuilder builder = new StringBuilder();
-        do
+        while(c != -1 & (escape | c != '#'))
         {
             if(escape) escape = false;
             else switch(c)
@@ -91,7 +137,6 @@ public final class PrimitiveTemplateWriter
             }
             c = reader.read();
         }
-        while(c != -1 & (escape | c != '#'));
         segments.add(builder.toString());
         return new Template(segments.toArray(String[]::new),variables.stream().mapToInt(Integer::intValue).toArray());
     }
@@ -108,17 +153,19 @@ public final class PrimitiveTemplateWriter
     }
     static boolean incrementVariables(final Variables variables)
     {
-        for(int i = 0;i < variables.index.length;++i)
+        int i;
+        for(i = 0;i < variables.index.length;++i)
         {
             if(++variables.index[i] < variables.limit[i])
                 return false;
             variables.index[i] = variables.base[i];
         }
-        return true;
+        return i == variables.index.length;
     }
     
     /**
-     * Executes a template
+     * Executes a template on a primitive template class. The template should declare one set of variables, a templated file name,
+     * and the templated file contents.
      */
     public static void executeClass(final Path templatePath) throws IOException
     {
@@ -152,6 +199,10 @@ public final class PrimitiveTemplateWriter
                 return;
         }
     }
+    /**
+     * Executes a template on static functions. The output file will share the name of the template file. Each template
+     * section should declare its own variables.
+     */
     public static void executeStatic(final Path templatePath) throws IOException
     {
         final Variables[] variables;
@@ -162,7 +213,7 @@ public final class PrimitiveTemplateWriter
             final List<Template> temps = new ArrayList<>();
             Variables v = readVariables(reader);
             Template t = readTemplate(reader);
-            while(v != null && t != null)
+            while(v != null & t != null)
             {
                 vars.add(v);
                 temps.add(t);
@@ -190,7 +241,7 @@ public final class PrimitiveTemplateWriter
         {
             for(int i = 0;i < variables.length;++i)
                 do executeTemplate(variables[i],templates[i],s -> out.write(s.getBytes(StandardCharsets.UTF_8)));
-                while(incrementVariables(variables[i]));
+                while(!incrementVariables(variables[i]));
         }
     }
 }

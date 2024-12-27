@@ -2,13 +2,10 @@
 
 package utils;
 
-import java.lang.reflect.Array;
-
 public final class ArrayUtils
 {
     private ArrayUtils() {}
-
-    #if;
+#if;\
     /**
      * @param a    An ascending sorted array.
      * @param v    The search key.
@@ -28,9 +25,8 @@ public final class ArrayUtils
             else return mid;
         }
         return -(low + 1);
-    }
-
-    #if;
+    }#;\
+#if;\
     /**
      * Inserts the element in an array sorted in ascending order.
      *
@@ -57,6 +53,5 @@ public final class ArrayUtils
         }
         System.arraycopy(a,low,a,low + 1,size - low);
         a[low] = v;
-    }
-    #;
+    }#;\
 }

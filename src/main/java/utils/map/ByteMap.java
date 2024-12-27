@@ -18,14 +18,14 @@ public final class ByteMap<T>
         keys = new byte[capacity];
         values = new Object[capacity];
     }
-    
+
     /** @return The value at the specified key, or {@code null} if not present. */
     public T get(final byte key)
     {
         final int find = find(keys,key,size);
         return find < 0? null : (T)values[find];
     }
-    
+
     /**
      * Performs the {@code put} operation with the assumption that {@code index} is
      * the correct location in the backing arrays and the key does not already exist
@@ -46,7 +46,7 @@ public final class ByteMap<T>
         values[index] = value;
         ++size;
     }
-    
+
     /**
      * Associates the key with the specified value.
      * @return {@code true} if the map's size changed.
@@ -62,7 +62,7 @@ public final class ByteMap<T>
         values[find] = value;
         return false;
     }
-    
+
     /**
      * Performs the {@code remove} operation on the specified index in the
      * backing array.
@@ -85,7 +85,7 @@ public final class ByteMap<T>
         arraycopy(oldK,index + 1,keys,index,size - index);
         arraycopy(oldV,index + 1,values,index,size - index);
     }
-    
+
     /**
      * Removes the mapping associated with the specified key.
      * @return The value associated with {@code key}, or {@code null} if the map
@@ -100,7 +100,7 @@ public final class ByteMap<T>
         removeImpl(find);
         return out;
     }
-    
+
     /**
      * Inserts the specified value if the key is not already present in the map.
      * @return The value associated with {@code key} after the insertion.
@@ -113,7 +113,19 @@ public final class ByteMap<T>
         putImpl(key,out,-(find + 1));
         return out;
     }
-    
+
+    /**
+     * Inserts the specified value if the key is not already present in the map.
+     * @return The value associated with {@code key} after the insertion.
+     */
+    public T insert(final byte key,final T value)
+    {
+        final int find = find(keys,key,size);
+        if(find >= 0) return (T)values[find];
+        putImpl(key,value,-(find + 1));
+        return value;
+    }
+
     /**
      * Replaces the specified value if the key exists in the map.
      * @return The previous value associated with {@code key}, or {@code null} if the
@@ -125,6 +137,20 @@ public final class ByteMap<T>
         if(find < 0) return null;
         final T out = (T)values[find];
         values[find] = value.get();
+        return out;
+    }
+
+    /**
+     * Replaces the specified value if the key exists in the map.
+     * @return The previous value associated with {@code key}, or {@code null} if the
+     *         map did not contain {@code key}.
+     */
+    public T replace(final byte key,final T value)
+    {
+        final int find = find(keys,key,size);
+        if(find < 0) return null;
+        final T out = (T)values[find];
+        values[find] = value;
         return out;
     }
 }

@@ -7,7 +7,7 @@ import static utils.IntegerUtils.log10;
 
 static long helper(final long stone,byte blink,final byte maxBlink,final LongMap<long[]> memoize)
 {
-    final long[] memo = memoize.putIfAbsent(stone,() -> new long[maxBlink]);
+    final long[] memo = memoize.insert(stone,() -> new long[maxBlink]);
     if(blink-- == 0)
         return 1;
     if(memo[blink] != 0)

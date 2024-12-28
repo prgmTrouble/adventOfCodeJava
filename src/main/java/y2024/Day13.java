@@ -48,18 +48,16 @@ static long part2(final short[] in)
 
 static void main()
 {
-    byte[] input = httpGet("https://adventofcode.com/2024/day/13/input").getBytes(UTF_8);
+    final byte[] input = httpGet("https://adventofcode.com/2024/day/13/input").getBytes(UTF_8);
     short[] in = new short[1 << 11];
     byte flag = 0;
     short insert = 0;
-    int read;
-    for(read = 0;read < input.length;++read)
-    {
-        if(('0' <= input[read]) & (input[read] <= '9'))
+    for(final byte b : input)
+        if(('0' <= b) & (b <= '9'))
         {
             if(insert == in.length)
                 System.arraycopy(in,0,in = new short[insert << 1],0,insert);
-            in[insert] = (short)(10 * in[insert] - '0' + input[read]);
+            in[insert] = (short)(10 * in[insert] - '0' + b);
             flag = 1;
         }
         else if(flag == 1)
@@ -67,7 +65,6 @@ static void main()
             flag = 0;
             ++insert;
         }
-    }
     System.arraycopy(in,0,in = new short[insert],0,insert);
     
     System.out.printf("Part 1: %d\n",part1(in));

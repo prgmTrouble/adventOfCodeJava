@@ -287,4 +287,29 @@ public final class ArrayUtils
         System.arraycopy(a,low,a,low + 1,size - low);
         a[low] = v;
     }
+    
+    /**
+     * Creates an array of packed integers.
+     *
+     * @param bits Number of bits per element.
+     * @param size Number of elements.
+     */
+    public static long[] packed(final byte bits,final int size)
+    {
+        return new long[((bits * size) >>> 6) + (((bits * size) & 63) == 0? 0 : 1)];
+    }
+    /**
+     * @param bits Number of bits per element.
+     * @param idx  Element index.
+     * @param arr  Packed array.
+     * @return The unpacked integer
+     */
+    public static long getPacked(final byte bits,final int idx,final long[] arr)
+    {
+        final byte shift = (byte)((idx * bits) & 63);
+        long out = arr[(idx * bits) >>> 6] >>> shift;
+        if(shift > 64 - bits)
+            out |= arr[((idx * bits) >>> 6) + 1] >>> -shift;
+        return out & ((1L << bits) - 1L);
+    }
 }

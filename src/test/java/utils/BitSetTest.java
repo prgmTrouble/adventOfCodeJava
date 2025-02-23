@@ -209,7 +209,7 @@ public class BitSetTest
     }
     
     @Test
-    public void test()
+    public void test_bit()
     {
         record Err(BigInteger data,int index) {}
         exec
@@ -222,7 +222,7 @@ public class BitSetTest
                 {
                     final boolean act;
                     try {act = BitSet.test(data,i);}
-                    catch(final Exception e) {return new Err(p,i);}
+                    catch(final Exception _) {return new Err(p,i);}
                     if(act != p.testBit(i))
                         return new Err(p,i);
                 }
@@ -234,6 +234,39 @@ public class BitSetTest
                 final int[] data = input(e.data);
                 System.out.printf("exp:%d\n",e.data.testBit(e.index)? 1 : 0);
                 try {System.out.printf("act:%d\n",BitSet.test(data,e.index)? 1 : 0);}
+                catch(final Exception ex) {actualException(ex);}
+            }
+        );
+    }
+    @Test
+    public void test_range()
+    {
+        record Err(BigInteger data,int start,int end) {}
+        exec
+        (
+            p -> () ->
+            {
+                final int[] data = DATA.get()[0];
+                toIntArray(p,data);
+                for(int i = 0;i <= N_BITS;++i)
+                {
+                    for(int j = i;j <= N_BITS;++j)
+                    {
+                        final boolean act;
+                        try {act = BitSet.test(data,i,j);}
+                        catch(final Exception _) {return new Err(p,i,j);}
+                        if(act != (i < j && !p.and(mask(i,j)).equals(BigInteger.ZERO)))
+                            return new Err(p,i,j);
+                    }
+                }
+                return null;
+            },
+            e ->
+            {
+                printRange(e.start,e.end);
+                final int[] data = input(e.data);
+                System.out.printf("exp:%d\n",e.start < e.end && !e.data.and(mask(e.start,e.end)).equals(BigInteger.ZERO)? 1 : 0);
+                try {System.out.printf("act:%d\n",BitSet.test(data,e.start,e.end)? 1 : 0);}
                 catch(final Exception ex) {actualException(ex);}
             }
         );
@@ -255,7 +288,7 @@ public class BitSetTest
                     byte parity = (byte)((i & 1) << 1);
                     System.arraycopy(data[0],0,data[1 + parity],0,ARR_SIZE);
                     try {func.accept(data[1 + parity],i);}
-                    catch(final Exception ex) {return new Err(p,i);}
+                    catch(final Exception _) {return new Err(p,i);}
                     toIntArray(control.apply(p,i),data[2 + parity]);
                     if(!Arrays.equals(data[1 + parity],data[2 + parity]))
                         return new Err(p,i);
@@ -293,7 +326,7 @@ public class BitSetTest
                     {
                         System.arraycopy(data[0],0,data[1 + parity],0,ARR_SIZE);
                         try {func.accept(data[1 + parity],i,j);}
-                        catch(final Exception ex) {return new Err(p,i,j);}
+                        catch(final Exception _) {return new Err(p,i,j);}
                         toIntArray(control.apply(p,mask(i,j)),data[2 + parity]);
                         if(!Arrays.equals(data[1 + parity],data[2 + parity]))
                             return new Err(p,i,j);
@@ -339,7 +372,7 @@ public class BitSetTest
                 {
                     byte parity = (byte)((i & 1) << 1);
                     try {BitSet.select(data[1 + parity],data[0],i);}
-                    catch(final Exception ex) {return new Err(p,i);}
+                    catch(final Exception _) {return new Err(p,i);}
                     toIntArray(p.and(mask(i,i + 1)),data[2 + parity]);
                     if(!Arrays.equals(data[1 + parity],data[2 + parity]))
                         return new Err(p,i);
@@ -378,7 +411,7 @@ public class BitSetTest
                     byte parity = (byte)((i & 1) << 1);
                     System.arraycopy(data[0],0,data[1 + parity],0,ARR_SIZE);
                     try {BitSet.select(data[1 + parity],i);}
-                    catch(final Exception ex) {return new Err(p,i);}
+                    catch(final Exception _) {return new Err(p,i);}
                     toIntArray(p.and(mask(i,i + 1)),data[2 + parity]);
                     if(!Arrays.equals(data[1 + parity],data[2 + parity]))
                         return new Err(p,i);
@@ -417,7 +450,7 @@ public class BitSetTest
                     for(int j = i;j <= N_BITS;++j)
                     {
                         try {func.mask(data[1 + parity],data[0],i,j);}
-                        catch(final Exception ex) {return new Err(p,i,j);}
+                        catch(final Exception _) {return new Err(p,i,j);}
                         toIntArray(control.mask(p,mask(i,j)),data[2 + parity]);
                         if(!Arrays.equals(data[1 + parity],data[2 + parity]))
                             return new Err(p,i,j);
@@ -456,7 +489,7 @@ public class BitSetTest
                     {
                         System.arraycopy(data[0],0,data[1 + parity],0,ARR_SIZE);
                         try {func.mask(data[1 + parity],i,j);}
-                        catch(final Exception ex) {return new Err(p,i,j);}
+                        catch(final Exception _) {return new Err(p,i,j);}
                         toIntArray(control.mask(p,mask(i,j)),data[2 + parity]);
                         if(!Arrays.equals(data[1 + parity],data[2 + parity]))
                             return new Err(p,i,j);
@@ -495,7 +528,7 @@ public class BitSetTest
                 final int[][] data = DATA.get();
                 toIntArray(p,data[0]);
                 try {BitSet.not(data[1],data[0]);}
-                catch(final Exception ex) {return p;}
+                catch(final Exception _) {return p;}
                 toIntArray(not(p),data[2]);
                 if(!Arrays.equals(data[1],data[2]))
                     return p;
@@ -527,7 +560,7 @@ public class BitSetTest
                 final int[][] data = DATA.get();
                 toIntArray(p,data[0]);
                 try {BitSet.not(data[0]);}
-                catch(final Exception e) {return p;}
+                catch(final Exception _) {return p;}
                 toIntArray(not(p),data[1]);
                 if(!Arrays.equals(data[0],data[1]))
                     return p;
@@ -562,7 +595,7 @@ public class BitSetTest
                 toIntArray(q,data[1]);
                 Arrays.fill(data[2],0xCCCCCCCC);
                 try {func.accept(data[2],data[0],data[1]);}
-                catch(final Exception ex) {return new Err(p,q);}
+                catch(final Exception _) {return new Err(p,q);}
                 toIntArray(control.apply(p,q),data[3]);
                 if(!Arrays.equals(data[2],data[3]))
                     return new Err(p,q);
@@ -595,7 +628,7 @@ public class BitSetTest
                 toIntArray(p,data[0]);
                 toIntArray(q,data[1]);
                 try {func.accept(data[0],data[1]);}
-                catch(final Exception ex) {return new Err(p,q);}
+                catch(final Exception _) {return new Err(p,q);}
                 toIntArray(control.apply(p,q),data[2]);
                 if(!Arrays.equals(data[0],data[2]))
                     return new Err(p,q);
@@ -640,7 +673,7 @@ public class BitSetTest
                 toIntArray(p,data);
                 final long act;
                 try {act = func.find(data);}
-                catch(final Exception ex) {return p;}
+                catch(final Exception _) {return p;}
                 if(act != control.find(p))
                     return p;
                 return null;
@@ -669,7 +702,7 @@ public class BitSetTest
                     {
                         final long act;
                         try {act = func.find(data,i,j);}
-                        catch(final Exception ex) {return new Err(p,i,j);}
+                        catch(final Exception _) {return new Err(p,i,j);}
                         if(act != control.find(p.and(mask(i,j))))
                             return new Err(p,i,j);
                     }
@@ -714,7 +747,7 @@ public class BitSetTest
                 {
                     System.arraycopy(data[0],0,data[1 + offset],0,ARR_SIZE);
                     try {func.shift(data[1 + offset],i);}
-                    catch(final Exception ex) {return new Err(p,i);}
+                    catch(final Exception _) {return new Err(p,i);}
                     toIntArray(control.shift(p,i),data[2 + offset]);
                     if(!Arrays.equals(data[1 + offset],data[2 + offset]))
                         return new Err(p,i);
@@ -754,7 +787,7 @@ public class BitSetTest
                         {
                             System.arraycopy(data[0],0,data[1 + offset],0,ARR_SIZE);
                             try {func.shift(data[1 + offset],s,e,a);}
-                            catch(final Exception ex) {return new Err(p,s,e,a);}
+                            catch(final Exception _) {return new Err(p,s,e,a);}
                             toIntArray(control.shift(p,s,e,a),data[2 + offset]);
                             if(!Arrays.equals(data[1 + offset],data[2 + offset]))
                                 return new Err(p,s,e,a);
@@ -784,6 +817,63 @@ public class BitSetTest
     @Test public void rsh_range() {shift_range(BitSet::rsh,(i,s,e,a) -> maskedLsh(i,mask(s,e),-a),false);}
     
     @Test
+    public void count_all()
+    {
+        exec
+        (
+            p -> () ->
+            {
+                final int[][] data = DATA.get();
+                toIntArray(p,data[0]);
+                final long act;
+                try {act = BitSet.count(data[0]);}
+                catch(final Exception _) {return p;}
+                if(act != p.bitCount())
+                    return p;
+                return null;
+            },
+            p ->
+            {
+                final int[] data = input(p);
+                System.out.printf("exp:%d\n",p.bitCount());
+                try {System.out.printf("act:%d\n",BitSet.count(data));}
+                catch(final Exception e) {actualException(e);}
+            }
+        );
+    }
+    @Test
+    public void count_range()
+    {
+        record Err(BigInteger data,short start,short end) {}
+        exec
+        (
+            p -> () ->
+            {
+                final int[][] data = DATA.get();
+                toIntArray(p,data[0]);
+                for(short s = 0;s < N_BITS;++s)
+                    for(short e = s;e < N_BITS;++e)
+                    {
+                        final long act;
+                        try {act = BitSet.count(data[0],s,e);}
+                        catch(final Exception _) {return new Err(p,s,e);}
+                        if(act != p.and(mask(s,e)).bitCount())
+                            return new Err(p,s,e);
+                    }
+                return null;
+            },
+            e ->
+            {
+                final int[] data = input(e.data);
+                printRange(e.start,e.end);
+                System.out.printf("exp:%d\n",e.data.and(mask(e.start,e.end)).bitCount());
+                try {System.out.printf("act:%d\n",BitSet.count(data,e.start,e.end));}
+                catch(final Exception ex) {actualException(ex);}
+            }
+        );
+    }
+    
+    @Test
     public void superset()
     {
         record Err(BigInteger a,BigInteger b) {}
@@ -796,7 +886,7 @@ public class BitSetTest
                 toIntArray(b,data[1]);
                 final boolean act;
                 try {act = BitSet.superset(data[0],data[1]);}
-                catch(final Exception ex) {return new Err(a,b);}
+                catch(final Exception _) {return new Err(a,b);}
                 if(act != a.and(b).equals(b))
                     return new Err(a,b);
                 return null;

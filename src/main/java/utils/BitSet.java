@@ -22,6 +22,23 @@ public final class BitSet
     public static byte get(final int[] set,final long bit) {return (byte)((set[(int)(bit >>> 5)] >>> bit) & 1);}
     /** @return {@code true} if the bit at the specified location is set */
     public static boolean test(final int[] set,final long bit) {return get(set,bit) != 0;}
+    /** @return {@code true} if any bits in the specified range is set. */
+    public static boolean test(final int[] set,final long start,final long end)
+    {
+        assert 0 <= start & start <= end & end <= (long)set.length << 5;
+        if(start == end)
+            return false;
+        int majorS = (int)(start >>> 5);
+        final int majorE = (int)(end >>> 5);
+        if(majorS == majorE)
+            return (set[majorS] & (-1 << start) & ((1 << end) - 1)) != 0;
+        if((set[majorS] & (-1 << start)) != 0)
+            return true;
+        while(++majorS < majorE)
+            if(set[majorS] != 0)
+                return true;
+        return majorE < set.length && (set[majorE] & ((1 << end) - 1)) != 0;
+    }
     /** Sets the specified bit */
     public static void set(final int[] set,final long bit) {set[(int)(bit >>> 5)] |= (1 << (bit & 0b11111));}
     /**
@@ -736,6 +753,33 @@ public final class BitSet
             if(majorE < set.length)
                 set[majorE] = (set[majorE] & mskE) | r;
         }
+    }
+    
+    /** @return The number of {@code 1} bits in the set. */
+    public static long count(final int[] set)
+    {
+        long out = 0;
+        for(final int i : set)
+            out += Integer.bitCount(i);
+        return out;
+    }
+    /** @return The number of {@code 1} bits in the set between the indices. */
+    public static long count(final int[] set,final long start,final long end)
+    {
+        assert start <= end & end <= (long)set.length << 5;
+        if(start == end) return 0;
+        final int majorS = (int)(start >>> 5),
+                  majorE = (int)(end >>> 5);
+        final byte minorS = (byte)(start & 0b11111),
+                   minorE = (byte)(end & 0b11111);
+        if(majorS == majorE)
+            return Integer.bitCount(set[majorS] & (-1 << minorS) & ((1 << minorE) - 1));
+        long out = Integer.bitCount(set[majorS] & (-1 << minorS));
+        for(int i = majorS + 1;i < majorE;++i)
+            out += Integer.bitCount(set[i]);
+        if(majorE < set.length)
+            out += Integer.bitCount(set[majorE] & ((1 << minorE) - 1));
+        return out;
     }
     
     /** @return {@code true} iff {@code a} contains all elements of {@code b}. */

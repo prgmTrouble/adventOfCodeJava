@@ -17,9 +17,9 @@ public final class ArrayUtils
         while(low < size)
         {
             final int mid = (low + size - 1) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) size = mid;
+            final int comp = Byte.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) size = mid;
             else return mid;
         }
         return -(low + 1);
@@ -37,9 +37,9 @@ public final class ArrayUtils
         while(low < size)
         {
             final int mid = (low + size - 1) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) size = mid;
+            final int comp = Short.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) size = mid;
             else return mid;
         }
         return -(low + 1);
@@ -57,9 +57,9 @@ public final class ArrayUtils
         while(low < size)
         {
             final int mid = (low + size - 1) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) size = mid;
+            final int comp = Integer.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) size = mid;
             else return mid;
         }
         return -(low + 1);
@@ -77,9 +77,9 @@ public final class ArrayUtils
         while(low < size)
         {
             final int mid = (low + size - 1) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) size = mid;
+            final int comp = Long.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) size = mid;
             else return mid;
         }
         return -(low + 1);
@@ -144,9 +144,9 @@ public final class ArrayUtils
         while(low <= high)
         {
             final int mid = (low + high) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) high = mid - 1;
+            final int comp = Byte.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) high = mid - 1;
             else {low = mid; break;}
         }
         System.arraycopy(a,low,a,low + 1,size - low);
@@ -171,9 +171,9 @@ public final class ArrayUtils
         while(low <= high)
         {
             final int mid = (low + high) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) high = mid - 1;
+            final int comp = Short.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) high = mid - 1;
             else {low = mid; break;}
         }
         System.arraycopy(a,low,a,low + 1,size - low);
@@ -198,9 +198,9 @@ public final class ArrayUtils
         while(low <= high)
         {
             final int mid = (low + high) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) high = mid - 1;
+            final int comp = Integer.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) high = mid - 1;
             else {low = mid; break;}
         }
         System.arraycopy(a,low,a,low + 1,size - low);
@@ -225,9 +225,9 @@ public final class ArrayUtils
         while(low <= high)
         {
             final int mid = (low + high) >>> 1;
-
-            if(a[mid] < v) low = mid + 1;
-            else if(a[mid] > v) high = mid - 1;
+            final int comp = Long.compareUnsigned(a[mid],v);
+            if(comp < 0) low = mid + 1;
+            else if(comp > 0) high = mid - 1;
             else {low = mid; break;}
         }
         System.arraycopy(a,low,a,low + 1,size - low);
@@ -286,30 +286,5 @@ public final class ArrayUtils
         }
         System.arraycopy(a,low,a,low + 1,size - low);
         a[low] = v;
-    }
-    
-    /**
-     * Creates an array of packed integers.
-     *
-     * @param bits Number of bits per element.
-     * @param size Number of elements.
-     */
-    public static long[] packed(final byte bits,final int size)
-    {
-        return new long[((bits * size) >>> 6) + (((bits * size) & 63) == 0? 0 : 1)];
-    }
-    /**
-     * @param bits Number of bits per element.
-     * @param idx  Element index.
-     * @param arr  Packed array.
-     * @return The unpacked integer
-     */
-    public static long getPacked(final byte bits,final int idx,final long[] arr)
-    {
-        final byte shift = (byte)((idx * bits) & 63);
-        long out = arr[(idx * bits) >>> 6] >>> shift;
-        if(shift > 64 - bits)
-            out |= arr[((idx * bits) >>> 6) + 1] >>> -shift;
-        return out & ((1L << bits) - 1L);
     }
 }

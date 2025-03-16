@@ -22,7 +22,7 @@ public final class BitSet
     public static byte get(final int[] set,final long bit) {return (byte)((set[(int)(bit >>> 5)] >>> bit) & 1);}
     /** @return {@code true} if the bit at the specified location is set */
     public static boolean test(final int[] set,final long bit) {return get(set,bit) != 0;}
-    /** @return {@code true} if any bits in the specified range is set. */
+    /** @return {@code (set & ((1 << end) - 1) & (-1 << start)) != 0} */
     public static boolean test(final int[] set,final long start,final long end)
     {
         assert 0 <= start & start <= end & end <= (long)set.length << 5;
@@ -38,6 +38,23 @@ public final class BitSet
             if(set[majorS] != 0)
                 return true;
         return majorE < set.length && (set[majorE] & ((1 << end) - 1)) != 0;
+    }
+    /** @return {@code (~set & ((1 << end) - 1) & (-1 << start)) != 0} */
+    public static boolean inverseTest(final int[] set,final long start,final long end)
+    {
+        assert 0 <= start & start <= end & end <= (long)set.length << 5;
+        if(start == end)
+            return false;
+        int majorS = (int)(start >>> 5);
+        final int majorE = (int)(end >>> 5);
+        if(majorS == majorE)
+            return (~set[majorS] & (-1 << start) & ((1 << end) - 1)) != 0;
+        if((~set[majorS] & (-1 << start)) != 0)
+            return true;
+        while(++majorS < majorE)
+            if(~set[majorS] != 0)
+                return true;
+        return majorE < set.length && (~set[majorE] & ((1 << end) - 1)) != 0;
     }
     /** Sets the specified bit */
     public static void set(final int[] set,final long bit) {set[(int)(bit >>> 5)] |= (1 << (bit & 0b11111));}

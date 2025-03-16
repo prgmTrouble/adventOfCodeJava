@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -179,7 +180,7 @@ public class BitSetTest
         final SecureRandom rand = new SecureRandom();
         for(;p < tasks.length;++p)
             tasks[p] = testFactory.apply(new BigInteger(N_BITS,rand));
-        assertFalse(parallelRun(Arrays.asList(tasks),output));
+        assertFalse(parallelRun(List.of(tasks),output));
     }
     
     static <T> void exec2D(final BiFunction<BigInteger,BigInteger,Callable<T>> testFactory,final Consumer<T> output)
@@ -205,7 +206,7 @@ public class BitSetTest
             tasks[p++] = testFactory.apply(b,a);
             tasks[p++] = testFactory.apply(b,b);
         }
-        assertFalse(parallelRun(Arrays.asList(tasks),output));
+        assertFalse(parallelRun(List.of(tasks),output));
     }
     
     @Test
@@ -267,6 +268,39 @@ public class BitSetTest
                 final int[] data = input(e.data);
                 System.out.printf("exp:%d\n",e.start < e.end && !e.data.and(mask(e.start,e.end)).equals(BigInteger.ZERO)? 1 : 0);
                 try {System.out.printf("act:%d\n",BitSet.test(data,e.start,e.end)? 1 : 0);}
+                catch(final Exception ex) {actualException(ex);}
+            }
+        );
+    }
+    @Test
+    public void inverseTest()
+    {
+        record Err(BigInteger data,int start,int end) {}
+        exec
+        (
+            p -> () ->
+            {
+                final int[] data = DATA.get()[0];
+                toIntArray(p,data);
+                for(int i = 0;i <= N_BITS;++i)
+                {
+                    for(int j = i;j <= N_BITS;++j)
+                    {
+                        final boolean act;
+                        try {act = BitSet.inverseTest(data,i,j);}
+                        catch(final Exception _) {return new Err(p,i,j);}
+                        if(act != (i < j && !p.not().and(mask(i,j)).equals(BigInteger.ZERO)))
+                            return new Err(p,i,j);
+                    }
+                }
+                return null;
+            },
+            e ->
+            {
+                printRange(e.start,e.end);
+                final int[] data = input(e.data);
+                System.out.printf("exp:%d\n",e.start < e.end && !e.data.not().and(mask(e.start,e.end)).equals(BigInteger.ZERO)? 1 : 0);
+                try {System.out.printf("act:%d\n",BitSet.inverseTest(data,e.start,e.end)? 1 : 0);}
                 catch(final Exception ex) {actualException(ex);}
             }
         );

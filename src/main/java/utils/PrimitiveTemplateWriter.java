@@ -66,7 +66,8 @@ public final class PrimitiveTemplateWriter
     static final String[][] TYPES =
     {
         {"byte","short","int","long","float","double"},
-        {"Byte","Short","Int","Long","Float","Double"}
+        {"Byte","Short","Int","Long","Float","Double"},
+        {"Byte","Short","Integer","Long","Float","Double"}
     };
     record Variables(byte[] limit,byte[] base,byte[] index) {}
     record Template(String[] segments,int[] vars) {}
@@ -100,7 +101,12 @@ public final class PrimitiveTemplateWriter
         int i = 0;
         for(final byte b : decl)
         {
-            limit[i] = (byte)(((b & 1) << 2) | (b & 2));
+            limit[i] = switch(b)
+            {
+                case 0  -> 0;
+                case 1  -> 4;
+                default -> 6;
+            };
             index[i] = base[i] = (byte)((~b & 1) << 2);
             ++i;
         }
@@ -124,12 +130,12 @@ public final class PrimitiveTemplateWriter
                 {
                     int variable = 0;
                     c = reader.read();
-                    while(c != '+' & c != '-')
+                    while(c != '+' & c != '-' & c != 'T')
                     {
                         variable = variable * 10 - '0' + c;
                         c = reader.read();
                     }
-                    variables.add((variable << 1) | (c == '-'? 0 : 1));
+                    variables.add((variable << 2) | (c != 'T'? c == '-'? 0 : 1 : 2));
                     segments.add(builder.toString());
                     builder.delete(0,builder.length());
                 }
@@ -147,7 +153,7 @@ public final class PrimitiveTemplateWriter
         {
             out.accept(template.segments[i]);
             final int insert = template.vars[i];
-            out.accept(TYPES[insert & 1][variables.index[insert >>> 1]]);
+            out.accept(TYPES[insert & 3][variables.index[insert >>> 2]]);
         }
         out.accept(template.segments[template.vars.length]);
     }
